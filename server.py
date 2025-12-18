@@ -62,50 +62,11 @@ def random_character_insertion(data):
     print(f"    [Character Insertion] '{new_char}' eklendi (pozisyon {insert_index})")
     return result
 
-def character_swapping(data):
-    if len(data) < 2:
-        return data
-    
-    swap_index = random.randint(0, len(data) - 2)
-    
-    result = (data[:swap_index] + 
-              data[swap_index+1] + 
-              data[swap_index] + 
-              data[swap_index+2:])
-    
-    print(f"    [Character Swapping] '{data[swap_index]}' ↔ '{data[swap_index+1]}' (pozisyon {swap_index})")
-    return result
-
-def multiple_bit_flips(data):
-    if not data:
-        return data
-    
-    num_flips = random.randint(2, min(4, len(data)))
-    indices = random.sample(range(len(data)), num_flips)
-    
-    result = list(data)
-    flipped_info = []
-    
-    for char_index in indices:
-        char = result[char_index]
-        bit_index = random.randint(0, 7)
-        ascii_val = ord(char)
-        corrupted_val = ascii_val ^ (1 << bit_index)
-        
-        if corrupted_val < 32 or corrupted_val > 126:
-            corrupted_val = (corrupted_val % 95) + 32
-        
-        result[char_index] = chr(corrupted_val)
-        flipped_info.append(f"'{char}'→'{result[char_index]}'")
-    
-    print(f"    [Multiple Bit Flips] {', '.join(flipped_info)}")
-    return ''.join(result)
-
 def burst_error(data):
     if len(data) < 3:
-        return multiple_bit_flips(data)
+        return bit_flip(data)
     
-    burst_length = random.randint(3, min(8, len(data)))
+    burst_length = random.randint(2, min(4, len(data)))
     start_index = random.randint(0, len(data) - burst_length)
     
     result = list(data)
@@ -124,10 +85,8 @@ ERROR_METHODS = {
     '2': ('Character Substitution', character_substitution),
     '3': ('Character Deletion', character_deletion),
     '4': ('Random Character Insertion', random_character_insertion),
-    '5': ('Character Swapping', character_swapping),
-    '6': ('Multiple Bit Flips', multiple_bit_flips),
-    '7': ('Burst Error', burst_error),
-    '8': ('No Corruption', lambda x: x),
+    '5': ('Burst Error', burst_error),
+    '6': ('No Corruption', lambda x: x),
 }
 
 class Server:
@@ -227,7 +186,7 @@ class Server:
                 elif user_input in ERROR_METHODS:
                     self.set_error_method(user_input)
                 else:
-                    print("Geçersiz giriş. 'm' ile menü, '1-8' ile yöntem, 'q' ile çıkış")
+                    print("Geçersiz giriş. 'm' ile menü, '1-6' ile yöntem, 'q' ile çıkış")
             except EOFError:
                 break
     
@@ -235,7 +194,7 @@ class Server:
         self.display_menu()
         print(f"\nServer başlatılıyor: {self.host}:{self.port}")
         print(f"Client 2 port: {self.client2_port}")
-        print("\nKomutlar: '1-8' yöntem seç | 'm' menü | 'q' çıkış")
+        print("\nKomutlar: '1-6' yöntem seç | 'm' menü | 'q' çıkış")
         print("-"*60)
         
         input_thread = threading.Thread(target=self.input_handler, daemon=True)

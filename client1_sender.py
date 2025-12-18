@@ -10,15 +10,10 @@ def binary_to_text(binary):
     chars = [binary[i:i+8] for i in range(0, len(binary), 8)]
     return ''.join(chr(int(c, 2)) for c in chars if len(c) == 8)
 
-def calculate_parity(text, parity_type='even'):
+def calculate_parity(text):
     binary = text_to_binary(text)
     ones_count = binary.count('1')
-    
-    if parity_type == 'even':
-        parity_bit = '1' if ones_count % 2 != 0 else '0'
-    else:
-        parity_bit = '1' if ones_count % 2 == 0 else '0'
-    
+    parity_bit = '1' if ones_count % 2 != 0 else '0'
     return parity_bit
 
 def calculate_2d_parity(text):
@@ -62,28 +57,6 @@ def calculate_crc16(text):
             crc &= 0xFFFF
     
     return format(crc, '04X')
-
-def calculate_crc32(text):
-    import binascii
-    data = text.encode('utf-8')
-    crc = binascii.crc32(data) & 0xFFFFFFFF
-    return format(crc, '08X')
-
-def calculate_crc8(text):
-    data = text.encode('utf-8')
-    crc = 0x00
-    polynomial = 0x07
-    
-    for byte in data:
-        crc ^= byte
-        for _ in range(8):
-            if crc & 0x80:
-                crc = (crc << 1) ^ polynomial
-            else:
-                crc <<= 1
-            crc &= 0xFF
-    
-    return format(crc, '02X')
 
 def calculate_hamming(text):
     binary = text_to_binary(text)
@@ -134,17 +107,11 @@ def get_control_info(text, method):
     method = method.upper()
     
     if method == 'PARITY':
-        return calculate_parity(text, 'even')
-    elif method == 'PARITY_ODD':
-        return calculate_parity(text, 'odd')
+        return calculate_parity(text)
     elif method == '2DPARITY':
         return calculate_2d_parity(text)
-    elif method == 'CRC8':
-        return calculate_crc8(text)
     elif method == 'CRC16':
         return calculate_crc16(text)
-    elif method == 'CRC32':
-        return calculate_crc32(text)
     elif method == 'HAMMING':
         return calculate_hamming(text)
     elif method == 'CHECKSUM':
@@ -161,13 +128,10 @@ def display_menu():
     print("="*60)
     print("\nHata Tespit Yöntemleri:")
     print("  1. PARITY      - Even Parity Bit")
-    print("  2. PARITY_ODD  - Odd Parity Bit")
-    print("  3. 2DPARITY    - 2D Matrix Parity")
-    print("  4. CRC8        - CRC-8")
-    print("  5. CRC16       - CRC-16 (CCITT)")
-    print("  6. CRC32       - CRC-32")
-    print("  7. HAMMING     - Hamming Code")
-    print("  8. CHECKSUM    - Internet Checksum")
+    print("  2. 2DPARITY    - 2D Matrix Parity")
+    print("  3. CRC16       - CRC-16 (CCITT)")
+    print("  4. HAMMING     - Hamming Code")
+    print("  5. CHECKSUM    - Internet Checksum")
     print("-"*60)
 
 def main():
@@ -187,8 +151,7 @@ def main():
     method_input = input("> ").strip().upper()
     
     method_map = {
-        '1': 'PARITY', '2': 'PARITY_ODD', '3': '2DPARITY', '4': 'CRC8',
-        '5': 'CRC16', '6': 'CRC32', '7': 'HAMMING', '8': 'CHECKSUM'
+        '1': 'PARITY', '2': '2DPARITY', '3': 'CRC16', '4': 'HAMMING', '5': 'CHECKSUM'
     }
     
     method = method_map.get(method_input, method_input)
